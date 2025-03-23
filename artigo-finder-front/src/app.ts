@@ -31,12 +31,11 @@ async function performSearch(query: string) {
     mostrarCarregamento(true);
     esconderErro();
 
-    // Chama a API para buscar artigos
     // Opção 1: Busca simples
     articles = await searchArticles(query);
     
     // Opção 2: Busca com filtros (descomente para usar)
-    // articles = await searchArticlesWithFilters(query, {
+    // articles = await procuraArtigosComFiltros(query, {
     //   limit: 20,
     //   fromYear: 2015,
     //   sortBy: 'citacoes'
@@ -46,7 +45,7 @@ async function performSearch(query: string) {
     renderizaArtigos();
   } catch (error) {
     console.error('Error searching articles:', error);
-    mostrarErro('Failed to search articles');
+    mostrarErro('Falha ao buscar artigos');
   } finally {
     mostrarCarregamento(false);
   }
@@ -60,7 +59,7 @@ function renderizaArtigos() {
   articlesContainer.innerHTML = '';
 
   if (articles.length === 0) {
-    articlesContainer.innerHTML = '<p class="no-results">No articles found</p>';
+    articlesContainer.innerHTML = '<p class="no-results">Nenhum artigo encontrado</p>';
     return;
   }
 
@@ -69,16 +68,17 @@ function renderizaArtigos() {
     card.classList.add('article-card');
     card.dataset.id = article.id;
 
+    // Adaptado para usar o campo nome em vez de name
     const authorsText = article.autores?.length
-      ? article.autores.map(a => a.name).join(', ')
-      : 'Unknown autores';
+      ? article.autores.map(a => a.nome).join(', ')
+      : 'Autores desconhecidos';
 
     card.innerHTML = `
       <h3 class="article-titulo">${article.titulo}</h3>
       <p class="article-autores">${authorsText}</p>
       <div class="article-metadata">
         <span>${article.ano || 'N/A'}</span>
-        <span>${article.citacoes} citacoes</span>
+        <span>${article.citacoes} citações</span>
       </div>
     `;
 
@@ -95,7 +95,7 @@ function mostrarDetalhesArtigo(article: Artigo) {
   const detailsPanel = document.getElementById('article-details');
   if (!detailsPanel) return;
 
-  // Constrói HTML para detalhes do artigo
+  // Constrói HTML para detalhes do artigo - adaptado para usar os campos corretos
   detailsPanel.innerHTML = `
     <div class="article-header">
       <h2>${article.titulo}</h2>
@@ -104,13 +104,13 @@ function mostrarDetalhesArtigo(article: Artigo) {
       </button>
     </div>
     
-    ${article.autores?.length ? `<p class="autores">${article.autores.map(a => a.name).join(', ')}</p>` : ''}
+    ${article.autores?.length ? `<p class="autores">${article.autores.map(a => a.nome).join(', ')}</p>` : ''}
     ${article.ano ? `<p class="ano">${article.ano}</p>` : ''}
     
     <div class="metadata">
       <div class="metadata-item">
         <i class="material-icons">format_quote</i>
-        <span>${article.citacoes} citacoes</span>
+        <span>${article.citacoes} citações</span>
       </div>
       ${article.venue ? `
         <div class="metadata-item">
@@ -120,13 +120,13 @@ function mostrarDetalhesArtigo(article: Artigo) {
       ` : ''}
     </div>
     
-    <h3>Abstract</h3>
-    ${article.abstract ? `<p>${article.abstract}</p>` : '<p class="no-abstract">No abstract available</p>'}
+    <h3>Resumo</h3>
+    ${article.resumo ? `<p>${article.resumo}</p>` : '<p class="no-abstract">Resumo não disponível</p>'}
     
     ${article.url ? `
       <div class="actions">
         <a href="${article.url}" target="_blank" class="view-button">
-          <i class="material-icons">open_in_new</i> View Paper
+          <i class="material-icons">open_in_new</i> Ver Artigo
         </a>
       </div>
     ` : ''}
@@ -160,7 +160,7 @@ function mostrarCarregamento(show: boolean) {
 }
 
 // Mostra mensagem de erro
-function mostrarErro(message: string = 'An error occurred') {
+function mostrarErro(message: string = 'Ocorreu um erro') {
   const errorElement = document.getElementById('search-error');
   if (errorElement) {
     const messageElement = errorElement.querySelector('p');

@@ -1,16 +1,25 @@
 export interface Autor {
-  id: string;
-  name: string;
+  nome: string;      
+  autorId?: string;
 }
 
 export interface Artigo {
   id: string;
-  titulo: string;
-  abstract?: string;
-  autores?: Autor[];
-  ano?: number;
-  venue?: string;
-  citacoes: number;
-  url?: string;
-  referencias?: string[];
+  titulo: string;    
+  resumo?: string;   
+  autores?: Autor[]; 
+  ano?: number;   
+  venue?: string;   
+  citacoes: number;  
+  url?: string;      
+  referencias?: string[]; 
+  favorito?: boolean; 
+  doi?: string;   
+}
+
+export interface FiltrosPesquisa {
+  anoInicial?: number;
+  anoFinal?: number; 
+  citacoesMinimas?: number;
+  ordenarPor?: string;
 }

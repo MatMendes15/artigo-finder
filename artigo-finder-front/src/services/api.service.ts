@@ -4,7 +4,6 @@ import type { Artigo } from '../models/artigo.model';
 const API_BASE_URL = 'http://localhost:25000/api';
 
 // Função utilitária para fazer requisições HTTP com retry automático
-
 async function fetchWithRetry<T>(
   url: string, 
   options: RequestInit = {}, 
@@ -59,7 +58,7 @@ async function fetchWithRetry<T>(
   throw lastError;
 }
 
-//Busca artigos acadêmicos baseados em uma query
+// Busca artigos acadêmicos baseados em uma query - adaptado para o backend Java
 export async function searchArticles(query: string, limit: number = 10): Promise<Artigo[]> {
   try {
     console.log('Searching articles with query:', query);
@@ -69,17 +68,17 @@ export async function searchArticles(query: string, limit: number = 10): Promise
     console.log('Request URL:', url);
     
     // Usar a função fetchWithRetry em vez de fetch diretamente
-    const data = await fetchWithRetry<{articles: Artigo[], total: number}>(url);
+    const data = await fetchWithRetry<{artigos: Artigo[], total: number}>(url);
     
-    console.log(`Found ${data.articles?.length || 0} articles out of ${data.total}`);
-    return data.articles || [];
+    console.log(`Found ${data.artigos?.length || 0} articles out of ${data.total}`);
+    return data.artigos || [];
   } catch (error) {
     console.error('Error searching articles after retries:', error);
     throw error;
   }
 }
 
-// Função para usar filtros adicionais na busca
+// Função para usar filtros adicionais na busca - adaptada para o backend Java
 export async function procuraArtigosComFiltros(
   query: string, 
   options: {
@@ -101,15 +100,15 @@ export async function procuraArtigosComFiltros(
     if (fromYear) params.append('from_year', fromYear.toString());
     if (toYear) params.append('to_year', toYear.toString());
     if (minCitations) params.append('min_citations', minCitations.toString());
-    if (sortBy) params.append('sort_by', sortBy);
+    if (sortBy) params.append('sort_by', sortBy === 'ano' ? 'year' : 'citations');
     
     const url = `${API_BASE_URL}/search/${encodedQuery}?${params.toString()}`;
     console.log('Request URL with filters:', url);
     
     // Usar a função fetchWithRetry em vez de fetch diretamente
-    const data = await fetchWithRetry<{articles: Artigo[], total: number}>(url);
+    const data = await fetchWithRetry<{artigos: Artigo[], total: number}>(url);
     
-    return data.articles || [];
+    return data.artigos || [];
   } catch (error) {
     console.error('Erro ao procurar artigos com filtros:', error);
     throw error;
@@ -122,10 +121,10 @@ export function mockDadosPesquisa(): Artigo[] {
     {
       id: "1",
       titulo: "Deep Learning: A Comprehensive Survey",
-      abstract: "This paper provides a comprehensive survey of deep learning methods and applications in various domains.",
+      resumo: "This paper provides a comprehensive survey of deep learning methods and applications in various domains.",
       autores: [
-        { id: "a1", name: "John Smith" },
-        { id: "a2", name: "Maria Garcia" }
+        { nome: "John Smith", autorId: "a1" },
+        { nome: "Maria Garcia", autorId: "a2" }
       ],
       ano: 2023,
       venue: "Journal of Machine Learning Research",
@@ -135,9 +134,9 @@ export function mockDadosPesquisa(): Artigo[] {
     {
       id: "2",
       titulo: "Transformer Models in Natural Language Processing",
-      abstract: "This study examines the impact of transformer models in advancing natural language processing tasks.",
+      resumo: "This study examines the impact of transformer models in advancing natural language processing tasks.",
       autores: [
-        { id: "a3", name: "Alan Turing" }
+        { nome: "Alan Turing", autorId: "a3" }
       ],
       ano: 2022,
       venue: "Computational Linguistics",
@@ -147,11 +146,11 @@ export function mockDadosPesquisa(): Artigo[] {
     {
       id: "3",
       titulo: "Graph Neural Networks for Molecular Property Prediction",
-      abstract: "A novel approach using graph neural networks for predicting molecular properties in drug discovery.",
+      resumo: "A novel approach using graph neural networks for predicting molecular properties in drug discovery.",
       autores: [
-        { id: "a4", name: "Lisa Chen" },
-        { id: "a5", name: "Robert Johnson" },
-        { id: "a6", name: "Sarah Williams" }
+        { nome: "Lisa Chen", autorId: "a4" },
+        { nome: "Robert Johnson", autorId: "a5" },
+        { nome: "Sarah Williams", autorId: "a6" }
       ],
       ano: 2021,
       venue: "Nature Machine Intelligence",
